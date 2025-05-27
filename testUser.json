@@ -1,0 +1,93 @@
+{
+    "response": {
+        "code": 200,
+        "result": "ok",
+        "message": "operation success",
+        "timestamp": 1748298662,
+        "elapsedtime": "0.03393",
+        "errors": [],
+        "data": {
+            "records": [
+                {
+                    "User": {
+                        "id": "514",
+                        "name": "Raul",
+                        "email": "rcoronel.recursos@gmail.com",
+                        "address": "don orione",
+                        "cp": "4000",
+                        "phone": "3815085383",
+                        "city": "san Miguel de Tucumán",
+                        "role": "3",
+                        "client_id": "14",
+                        "identification_number": "23566759",
+                        "last_name": "Coronel",
+                        "track_user": true,
+                        "itinerant_user": true,
+                        "external_code": "23566759",
+                        "offline": false,
+                        "facial_detection": false,
+                        "basic_user": false,
+                        "is_candidate": false,
+                        "admission_date": "2008-07-14",
+                        "cuil": "20-23566759-3",
+                        "children_quantity": "4",
+                        "civil_status": "Casado/a",
+                        "primary_transport": "Motocicleta",
+                        "alternative_transportation": "Transporte público",
+                        "birthday": "1974-01-24",
+                        "position": null,
+                        "identification_code": null,
+                        "is_email_confirmed": true,
+                        "block_login": false,
+                        "read_only": false,
+                        "sex": "masculino",
+                        "bank": "Galicia",
+                        "nationality": "argentino",
+                        "door_number": "2746",
+                        "floor": null,
+                        "apartment": null,
+                        "state": "Tucumán",
+                        "created": "2018-02-01 15:42:38",
+                        "modified": "2025-05-26 18:31:35",
+                        "user_id": "485"
+                    },
+                    "Customfieldvalue": [
+                        {
+                            "field_value_alpha": "7.0089430004169E+19",
+                            "customfield_id": "85",
+                            "user_id": "514",
+                            "Customfield": {
+                                "field_type": "number",
+                                "field_label": "CBU",
+                                "id": "85"
+                            }
+                        }
+                    ],
+                    "Supervisor": {
+                        "name": "Damian",
+                        "last_name": "Henrik",
+                        "identification_number": "28016198",
+                        "identification_code": null,
+                        "external_code": "28016198",
+                        "id": "485"
+                    }
+                }
+            ],
+            "pagination": {
+                "User": {
+                    "page": 1,
+                    "current": 1,
+                    "count": 1,
+                    "prevPage": false,
+                    "nextPage": false,
+                    "pageCount": 1,
+                    "order": [],
+                    "limit": 100,
+                    "options": [],
+                    "paramType": "named",
+                    "queryScope": null
+                }
+            }
+        }
+    }
+}
