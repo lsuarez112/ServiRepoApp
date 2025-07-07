@@ -20,7 +20,7 @@ export async function buildTemplates() {
 
         await Promise.all(elements.map(async (el) => {
             const componentName = el.getAttribute('data-include');
-            const componentHtmlPath = `ServiRepoApp/components/${componentName}.html?v=${new Date().getTime()}`;
+            const componentHtmlPath = `components/${componentName}.html?v=${new Date().getTime()}`;
 
             try {
                 //1. Cargar Componete -----
