@@ -346,13 +346,16 @@ async function fetchMarcacionesPorUsuario(dni, desde, hasta) {
                 };
             }
 
+            const datetimeOutStr = i.datetime_out || '';
+            const outParts = datetimeOutStr ? datetimeOutStr.split(" ") : [];
+
             agrupados[fecha].intervals.push({
                 datetime_in: i.datetime_in,
                 date_in: i.datetime_in.split(" ")[0],
                 time_in: i.datetime_in.split(" ")[1],
-                datetime_out: i.datetime_out,
-                date_out: i.datetime_out.split(" ")[0],
-                time_out: i.datetime_out.split(" ")[1],
+                datetime_out: datetimeOutStr,
+                date_out: outParts[0] || '',
+                time_out: outParts[1] || '',
                 tiempo_neto_hms: duracionHMS,
                 tiempo_neto_decimal: duracionSeg / 3600,
                 ubicacion: branchIn.name,
