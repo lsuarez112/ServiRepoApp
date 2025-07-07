@@ -1,0 +1,338 @@
+<div x-show="$store.usuarios.modalSupervisor.isOpen" x-transition:enter="transition duration-300 ease-out"
+    id="supervisorModal" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 h-full flex items-center justify-center">
+
+    <!-- Overlay -->
+    <div class="fixed inset-0 bg-black/50" @click="$store.usuarios.modalSupervisor.close()"></div>
+
+    <!-- Modal -->
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-7xl mx-4 z-50 p-6 h-[95vh] flex flex-col"
+        x-transition:enter="transition transform duration-300" x-transition:enter-start="scale-95 opacity-0"
+        x-transition:enter-end="scale-100 opacity-100" x-transition:leave="transition transform duration-200"
+        x-transition:leave-start="scale-100 opacity-100" x-transition:leave-end="scale-95 opacity-0">
+
+        <div class="flex items-start justify-between border-b pb-4">
+            <h3 class="text-xl font-semibold text-gray-800">
+                Información del Supervisor
+            </h3>
+            <button @click="$store.usuarios.modalSupervisor.close()"
+                class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                    <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 
+                             1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 
+                             1.06L12 13.06l-5.47 5.47a.75.75 
+                             0 0 1-1.06-1.06L10.94 12 5.47 
+                             6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="gap-y-2 grow overflow-hidden my-2">
+            <!-- Sección 1: Datos personales -->
+            <div class="h-1/4 space-y-2 p-2 overflow-y-auto">
+
+                <div x-show="$store.usuarios.modalSupervisor.estado === 'CARGANDO'">
+                    <div class="animate-pulse">
+                        <div class="px-4 py-2">
+                            <div class="h-2 w-64 bg-gray-200 rounded mb-2"></div>
+                            <div class="h-2 w-48 bg-gray-200 rounded mb-2"></div>
+                            <div class="h-2 w-32 bg-gray-200 rounded mb-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2"
+                    x-show="$store.usuarios.modalSupervisor.estado === 'RENDER'">
+                    <!-- 🧑‍💼 Datos Personales -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b-1 border-b-gray-200">Datos
+                            Personales</h3>
+                        <div class="space-y-1">
+                            <div><span class="text-sm font-medium text-gray-600">Nombre:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.last_name + ', ' + $store.usuarios.modalSupervisor.usuario.name"></span>
+                            </div>
+                            <div><span class="text-sm font-medium text-gray-600">DNI:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.identification_number"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">CUIL:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.cuil"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">Sexo:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.sex || '—'"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">Fecha nacimiento:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.birthday"></span>
+                            </div>
+                            <div><span class="text-sm font-medium text-gray-600">Estado civil:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.civil_status"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">Hijos:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.children_quantity"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- 🏢 Datos Laborales -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b-1 border-b-gray-200">Datos
+                            Laborales</h3>
+                        <div class="space-y-1">
+                            <div><span class="text-sm font-medium text-gray-600">Fecha ingreso:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.admission_date"></span></div>
+
+                            <div>
+                                <span class="text-sm font-medium text-gray-600">Tracking:</span>
+                                <span
+                                    :class="$store.usuarios.modalSupervisor.usuario.track_user ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                    class="inline px-2 py-0.5 rounded-full text-xs font-medium ml-1">
+                                    <span
+                                        x-text="$store.usuarios.modalSupervisor.usuario.track_user ? 'Sí' : 'No'"></span>
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-sm font-medium text-gray-600">Offline:</span>
+                                <span
+                                    :class="$store.usuarios.modalSupervisor.usuario.offline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                    class="inline px-2 py-0.5 rounded-full text-xs font-medium ml-1">
+                                    <span x-text="$store.usuarios.modalSupervisor.usuario.offline ? 'Sí' : 'No'"></span>
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-sm font-medium text-gray-600">Itinerante:</span>
+                                <span
+                                    :class="$store.usuarios.modalSupervisor.usuario.itinerant_user ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                    class="inline px-2 py-0.5 rounded-full text-xs font-medium ml-1">
+                                    <span
+                                        x-text="$store.usuarios.modalSupervisor.usuario.itinerant_user ? 'Sí' : 'No'"></span>
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-sm font-medium text-gray-600">Validación facial:</span>
+                                <span
+                                    :class="$store.usuarios.modalSupervisor.usuario.facial_detection ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                    class="inline px-2 py-0.5 rounded-full text-xs font-medium ml-1">
+                                    <span
+                                        x-text="$store.usuarios.modalSupervisor.usuario.facial_detection ? 'Sí' : 'No'"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🚗 Movilidad -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b-1 border-b-gray-200">Movilidad</h3>
+                        <div class="space-y-1">
+                            <div><span class="text-sm font-medium text-gray-600">Transporte primario:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.primary_transport"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">Transporte secundario:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.alternative_transportation"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    x-show="$store.usuarios.modalSupervisor.estado === 'RENDER'">
+                    <!-- 🏠 Contacto -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b-1 border-b-gray-200">Contacto</h3>
+                        <div class="space-y-1">
+                            <div><span class="text-sm font-medium text-gray-600">Teléfono:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.phone"></span>
+                            </div>
+                            <div><span class="text-sm font-medium text-gray-600">Email:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.email"></span>
+                            </div>
+                            <div><span class="text-sm font-medium text-gray-600">Dirección:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="`${$store.usuarios.modalSupervisor.usuario.address}, ${$store.usuarios.modalSupervisor.usuario.city}, CP: ${$store.usuarios.modalSupervisor.usuario.cp}, ${$store.usuarios.modalSupervisor.usuario.state}`"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🗓️ Auditoría -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3 border-b-1 border-b-gray-200">Auditoría del
+                            Registro</h3>
+                        <div class="space-y-1">
+                            <div><span class="text-sm font-medium text-gray-600">Fecha creado:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.created"></span></div>
+                            <div><span class="text-sm font-medium text-gray-600">Última modificación:</span> <span
+                                    class="text-gray-700 text-sm"
+                                    x-text="$store.usuarios.modalSupervisor.usuario.modified"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-3/4 pt-2 border-t-1 border-t-gray-200">
+                <!-- <div class="h-1/2 overflow-x-auto"> -->
+                <div class="h-full overflow-x-auto">
+                    <h3 class="text-xl font-semibold text-gray-800">
+                        Marcaciones
+                    </h3>
+                    <div class="flex flex-wrap justify-between items-end gap-2 mb-4">
+                        <span class="inline-block">
+                            <span x-show="$store.usuarios.modalSupervisor.estado === 'CARGANDO'">
+                                <div class="animate-pulse">
+                                    <div class="px-4 py-2">
+                                        <div class="h-2 w-64 bg-gray-200 rounded"></div>
+                                    </div>
+                                </div>
+                            </span>
+                            <span x-show="$store.usuarios.modalSupervisor.estado === 'RENDER'">
+                                Resumen:
+                                <span class="text-sm font-medium text-gray-600">Brutas:</span> <span
+                                    x-text="$store.usuarios.modalSupervisor.resumenGlobal.tiempo_bruto_total_hms"></span>,
+                                <span class="text-sm font-medium text-gray-600">Netas:</span> <span
+                                    x-text="$store.usuarios.modalSupervisor.resumenGlobal.tiempo_neto_total_hms"></span>,
+                                <span class="text-sm font-medium text-gray-600">Traslado:</span> <span
+                                    x-text="$store.usuarios.modalSupervisor.resumenGlobal.tiempo_traslado_total_hms"></span>
+                            </span>
+                        </span>
+                        <div class="flex flex-row gap-2 items-end">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Desde</label>
+                                <input type="date" class="block w-full rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700
+                          focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    x-model="$store.usuarios.modalSupervisor.desde">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Hasta</label>
+                                <input type="date" class="block w-full rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700
+                          focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    x-model="$store.usuarios.modalSupervisor.hasta">
+                            </div>
+                            <div class="flex items-end">
+                                <button @click="$store.usuarios.modalSupervisor.buscarMarcaciones()" class="cursor-pointer inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white 
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Buscar
+                                </button>
+                            </div>
+                            <div class="flex items-end hidden">
+                                <button @click="buscarMarcaciones()"
+                                    class="cursor-pointer inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white
+               hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5 mr-2"
+                                        viewBox="0 0 24 24">
+                                        <path d="M19 2H8c-1.1 0-2 .9-2 2v4H5c-1.1 0-2 .9-2 2v10c0 
+                    1.1.9 2 2 2h11c1.1 0 2-.9 2-2v-4h1c1.1 0 
+                    2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14H5V10h13v6zm0-8H5V8h13v0zm0-2H5V6h13v0z" />
+                                    </svg>
+                                    Descargar XLSX
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="min-w-full divide-y divide-gray-200 overflow-y-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    #</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Tiempo de Traslado</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Boca</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Hora de Ingreso</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Hora de Egreso</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Ingreso</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                    Egreso</th>
+                            </tr>
+                        </thead>
+
+                        <template x-if="$store.usuarios.modalSupervisor.estado === 'CARGANDO'">
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="row in 5" :key="row">
+                                    <tr class="animate-pulse">
+                                        <template x-for="col in 8" :key="col">
+                                            <td class="px-4 py-2">
+                                                <div class="h-2 w-full bg-gray-200 rounded"></div>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </template>
+                        <template x-if="$store.usuarios.modalSupervisor.estado === 'RENDER'">
+                            <template x-for="(dataDia, fecha) in $store.usuarios.modalSupervisor.marcaciones"
+                                :key="fecha">
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="bg-gray-50 border-t-2 border-gray-300">
+                                        <td colspan="8" class="px-4 py-2 text-sm text-end text-gray-800">
+                                            Total del día <span x-text="fecha"
+                                                class="text-sm font-medium text-gray-700"></span> —
+                                            <span class="text-sm font-medium text-gray-700">Bruto:</span> <span
+                                                x-text="dataDia.tiempo_bruto_total_hms"></span>,
+                                            <span class="text-sm font-medium text-gray-700">Neto:</span> <span
+                                                x-text="dataDia.tiempo_neto_total_hms"></span>,
+                                            <span class="text-sm font-medium text-gray-700">Traslado:</span> <span
+                                                x-text="dataDia.tiempo_traslado_total_hms"></span>
+                                            <a :href="dataDia.recorrido_link" target="_blank" rel="noopener noreferrer"
+                                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                Recorrido del Día
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <template x-for="(marcacion, idx) in dataDia.intervals" :key="idx">
+                                        <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                                            <td x-text="idx + 1" class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="marcacion.tiempo_traslado_hms"
+                                                class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="marcacion.ubicacion"
+                                                class="px-4 py-2 text-sm text-gray-700 font-semibold">
+                                            </td>
+                                            <td x-text="marcacion.time_in" class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="marcacion.time_out" class="px-4 py-2 text-sm text-gray-700">
+                                            </td>
+                                            <td class="px-4 py-2 text-sm text-gray-700">
+                                                <a :href="marcacion.marcacion_in" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                    Ver en Maps
+                                                </a>
+                                            </td>
+                                            <td class="px-4 py-2 text-sm text-gray-700">
+                                                <a :href="marcacion.marcacion_out" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                    Ver en Maps
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+
+                            </template>
+                        </template>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-auto mb-0 flex justify-end space-x-2">
+            <button @click="$store.usuarios.modalSupervisor.close()" class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 
+                           transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>

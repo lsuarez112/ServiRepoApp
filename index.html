@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Marcación de Repositores</title>
+
+    <!-- Fonts  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- <link rel="stylesheet" href="./styles/output.css"> -->
+
+    <script src="./lib/jquery.min.js" defer></script>
+    <!-- <script src="./lib/alpine.min.js" defer></script> -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="module" src="./scripts/index.js"></script>
+
+</head>
+
+<body class="relative">
+
+    <section class="bg-white">
+        <nav x-data="{ isOpen: false }" class="container p-6 mx-auto lg:flex lg:justify-between lg:items-center">
+            <div class="flex items-center justify-between">
+                <a href="https://servi-repo.com/" target="_blank">
+                    <img class="w-auto h-6 sm:h-7" src="/logoico.svg" alt="">
+                </a>
+
+                <!-- Mobile menu button -->
+                <div class="flex lg:hidden">
+                    <button x-cloak @click="isOpen = !isOpen" type="button"
+                        class="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+                        aria-label="toggle menu">
+                        <svg x-show="!isOpen" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+                        </svg>
+
+                        <svg x-show="isOpen" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div x-cloak :class="[isOpen ? 'translate-x-0 opacity-100 ' : 'opacity-0 -translate-x-full']"
+                class="absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white shadow-md lg:bg-transparent lg:shadow-none lg:mt-0 lg:p-0 lg:top-0 lg:relative lg:w-auto lg:opacity-100 lg:translate-x-0 lg:flex lg:items-center">
+                <div class="flex flex-col space-y-4 lg:mt-0 lg:flex-row lg:-px-8 lg:space-y-0">
+                    <a class="text-gray-700 transition-colors duration-300 transform lg:mx-8 hover:text-blue-500"
+                        href="#tablaSupervisores">Supervisores</a>
+                    <a class="text-gray-700 transition-colors duration-300 transform lg:mx-8 hover:text-blue-500"
+                        href="#tablaRepositores">Repositores</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container px-6 py-16 mx-auto text-center">
+            <div class="max-w-lg mx-auto">
+                <h1 class="text-3xl font-semibold text-gray-800 lg:text-4xl">Panel de Marcaciones de ServiRepo</h1>
+            </div>
+        </div>
+    </section>
+
+    <section class="container px-6 py-10 mb-10 mx-auto bg-gray-50/50 border border-gray-200 rounded-lg shadow-sm">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div class="w-full">
+                <div class="flex items-center gap-x-3">
+                    <h2 class="text-lg font-medium text-gray-800">Supervisores</h2>
+
+                    <span class="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full"
+                        id="cantidadSupervisores"></span>
+                </div>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Los supervisores son personas responsables de gestionar y coordinar a los repositores a su cargo,
+                    asegurando el cumplimiento de las tareas asignadas y el correcto funcionamiento de los equipos de
+                    trabajo.
+                </p>
+            </div>
+        </div>
+
+        <div data-include="supervisores-table"></div>
+        <div data-include="supervisor-modal"></div>
+    </section>
+
+    <section class="container px-6 py-10 mb-10 mx-auto bg-gray-50/50 border border-gray-200 rounded-lg shadow-sm">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <div class="w-full">
+                <div class="flex items-center gap-x-3">
+                    <h2 class="text-lg font-medium text-gray-800">Repositores</h2>
+
+                    <span class="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full"
+                        id="cantidadRepositores"></span>
+                </div>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Los supervisores son personas responsables de gestionar y coordinar a los repositores a su cargo,
+                    asegurando el cumplimiento de las tareas asignadas y el correcto funcionamiento de los equipos de
+                    trabajo.
+                </p>
+            </div>
+        </div>
+
+        <div data-include="repositores-table"></div>
+        <div data-include="repositor-modal"></div>
+    </section>
+
+</body>
+
+</html>

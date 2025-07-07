@@ -1,0 +1,135 @@
+<div x-data="{ filtroRepositores: '' }" id="tablaRepositores">
+    <div class="mt-6 md:flex md:items-center md:justify-end">
+        <div class="relative flex items-center mt-4 md:mt-0">
+            <span class="absolute">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 mx-3 text-gray-400">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+            </span>
+
+            <input type="text" placeholder="Buscar" id="repositoresSearch" x-model="filtroRepositores"
+                class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40">
+
+            <button type="button" x-show="filtroRepositores" @click="filtroRepositores = ''"
+                class="absolute right-0 pr-3 focus:outline-none cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                    class="w-5 h-5 text-gray-400 hover:text-gray-600">
+                    <path fill-rule="evenodd"
+                        d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-col mt-6">
+        <div class="overflow-x-auto">
+            <div class="inline-block min-w-full py-2 align-middle">
+
+                <div class="border border-gray-200 rounded-lg max-h-[90vh] overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500"
+                                    title="Nombre de Repositor">Nombre</th>
+
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500"
+                                    title="Número de Teléfono del Repositor">
+                                    Teléfono
+                                </th>
+
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500"
+                                    title="Transporte habitual del Repositor (y secundario)">
+                                    Transporte
+                                </th>
+
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500"
+                                    title="Ciudad y Localidad donde reside el Repositor">
+                                    Ciudad</th>
+
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500"
+                                    title="Trackeo y si esta offline o no">
+                                    Trackear</th>
+
+                                <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left text-gray-500">
+                                    Acción
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+
+                            <template x-if="$store.usuarios?.estado === 'CARGANDO'">
+                                <template x-for="i in 6" :key="i">
+                                    <tr class="animate-pulse">
+                                        <template x-for="j in 6" :key="j">
+                                            <td class="px-4 py-3.5">
+                                                <p class="w-32 h-2 bg-gray-200 rounded-lg"></p>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </template>
+
+                            <template x-if="$store.usuarios?.estado === 'RENDER'">
+                                <template x-for="repositor in $store.usuarios?.repositores.filter(r => 
+                                    (`${r.User.last_name} ${r.User.name} ${r.User.identification_number} ${r.User.phone} ${r.User.primary_transport} ${r.User.alternative_transportation} ${r.User.city} ${r.User.state}`)
+                                    .toLowerCase().includes(filtroRepositores.toLowerCase())
+                                )" :key="repositor.User.id">
+                                    <tr>
+                                        <td class="px-4 py-3.5 text-sm font-medium whitespace-nowrap">
+                                            <div>
+                                                <h2 class="font-medium text-gray-800" x-text="repositor.User.last_name && repositor.User.name 
+                                    ? `${repositor.User.last_name}, ${repositor.User.name}`: repositor.User.last_name
+                                    ? repositor.User.last_name : repositor.User.name
+                                    ? repositor.User.name : '—'"></h2>
+                                                <p
+                                                    class="text-sm font-normal text-gray-600 flex gap-2 justify-start items-center">
+                                                    <span>DNI:</span>
+                                                    <span x-text="repositor.User.identification_number || '—'"></span>
+                                                </p>
+                                            </div>
+                                        </td>
+
+                                        <td class="px-4 py-3.5 text-sm whitespace-nowrap"
+                                            x-text="repositor.User.phone || '—'">
+                                        </td>
+
+                                        <td class="px-4 py-3.5 text-sm whitespace-nowrap">
+                                            <div>
+                                                <h4 class="text-gray-700" x-text="repositor.User.primary_transport || ''">
+                                                </h4>
+                                                <p class="text-gray-500"
+                                                    x-text="repositor.User.alternative_transportation || ''"></p>
+                                            </div>
+                                        </td>
+
+                                        <td class="px-4 py-3.5 text-sm whitespace-nowrap"
+                                            x-text="`${repositor.User.city || ''}${repositor.User.city && repositor.User.state ? ', ' : ''}${repositor.User.state || ''}`">
+                                        </td>
+
+                                        <td class="px-4 py-3.5 text-sm whitespace-nowrap">
+                                            <div class="inline px-3 py-1 text-sm font-normal rounded-full gap-x-2"
+                                                :class="repositor.User.offline 
+                    ? 'bg-red-100/60 text-red-500' 
+                    : 'bg-emerald-100/60 text-emerald-500'"
+                                                x-text="`${repositor.User.track_user ? 'Tracking' : 'No Tracking'} - ${repositor.User.offline ? 'Offline' : 'Online'}`">
+                                            </div>
+                                        </td>
+
+                                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                            <div class="flex justify-center">
+                                                <a href="#" class="font-medium text-blue-600 hover:underline"
+                                                    @click="$store.usuarios?.modalRepositor.open(repositor.User.identification_number)">Ver</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
