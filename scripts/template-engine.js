@@ -23,13 +23,13 @@ export async function buildTemplates() {
             const componentHtmlPath = `components/${componentName}.html?v=${new Date().getTime()}`;
 
             try {
-                //1. Cargar Componete -----
+                //1. Cargar Componente -----
                 const html = await fetch(componentHtmlPath).then(res => {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     return res.text();
                 });
 
-                //2. Crear Componete -----
+                //2. Crear Componente -----
                 const temp = document.createElement('div');
                 temp.innerHTML = html;
                 el.replaceWith(...Array.from(temp.childNodes));
