@@ -44,6 +44,26 @@ function setupTables() {
                 hasta: '',
                 dniSupervisor: '',
                 resumenGlobal: {},
+                exportarExcel() {
+
+                    const nombreCompleto = `${this.usuario.last_name}, ${this.usuario.name}`;
+
+                    const dni = this.usuario.identification_number || "sinDNI";
+
+                    // generar nombre de archivo seguro
+                    const safeFileName = `${this.usuario.last_name}_${this.usuario.name}_${dni}`
+                        .replace(/[^a-z0-9]/gi, '_') // reemplaza cualquier cosa que no sea letra o número por _
+                        .toLowerCase();
+
+                    const dataUsuarios = {
+                        [nombreCompleto]: {
+                            ...this.usuario,
+                            intervals: this.marcaciones
+                        }
+                    };
+
+                    globalExportarExcel(dataUsuarios, safeFileName)
+                },
                 async buscarMarcaciones() {
                     this.estado = 'CARGANDO';
 
@@ -86,7 +106,7 @@ function setupTables() {
                     hace30.setDate(hace30.getDate() - 30);
                     const desde = hace30.toISOString().split("T")[0];
 
-                    await setTimeout(() => { }, 1500);
+                    await sleep(1500)
 
                     this.desde = desde;
                     this.hasta = hasta;
@@ -120,6 +140,153 @@ function setupTables() {
                     this.isOpen = false;
                 },
             },
+            reposDeSupervisor: {
+                isOpen: false,
+                estado: 'CARGANDO',
+                supervisorName: '',
+                desde: '',
+                hasta: '',
+                repositores: [],
+                exportarExcel() {
+
+                    const supervisor = (this.supervisorName || "Supervisor").replaceAll(' ', '_');
+
+                    // fechas
+                    const desde = this.desde || "inicio";
+                    const hasta = this.hasta || "hoy";
+
+                    // nombre de archivo seguro
+                    const safeFileName = `${supervisor}_${desde}_a_${hasta}`
+                        .replace(/[^a-z0-9]/gi, '_')
+                        .toLowerCase();
+
+                    // armar dataUsuarios con todos los repositores
+                    const dataUsuarios = {};
+
+                    console.log('repositores', this.repositores)
+
+                    this.repositores.forEach(repo => {
+                        const nombreCompleto = `${repo.User.last_name}, ${repo.User.name}`;
+                        dataUsuarios[nombreCompleto] = {
+                            transporte_primario: repo.User.primary_transport || "Desconocido",
+                            intervals: repo.marcaciones || {}
+                        };
+                    });
+
+                    globalExportarExcel(dataUsuarios, safeFileName);
+
+                },
+                async buscarMarcaciones() {
+                    this.estado = 'CARGANDO';
+
+                    const totalRepos = this.repositores.length;
+                    for (const [i, repo] of this.repositores.entries()) {
+                        repo.User = limpiarDatosUsuario(repo.User);
+
+                        this.marcacionesDe = `${repo.User.last_name}, ${repo.User.name} (${i + 1}/${totalRepos})`;
+
+                        await sleep(1050);
+
+                        repo.marcaciones = await fetchMarcacionesPorUsuario(
+                            repo.User.identification_number,
+                            this.desde,
+                            this.hasta
+                        );
+
+                        let totalBrutoSegundos = 0;
+                        let totalNetoSegundos = 0;
+                        let totalTrasladoSegundos = 0;
+
+                        for (const fecha in repo.marcaciones) {
+                            const dataDia = repo.marcaciones[fecha];
+                            totalBrutoSegundos += dataDia.tiempo_bruto_total * 3600;
+                            totalNetoSegundos += dataDia.tiempo_neto_total * 3600;
+                            totalTrasladoSegundos += dataDia.tiempo_traslado_total * 3600;
+                        }
+
+                        repo.resumenGlobal = {
+                            tiempo_bruto_total_hms: segToHMS(totalBrutoSegundos),
+                            tiempo_neto_total_hms: segToHMS(totalNetoSegundos),
+                            tiempo_traslado_total_hms: segToHMS(totalTrasladoSegundos)
+                        };
+
+                        // console.log('obtener marcaciones de repositor:', repo);
+                    }
+
+                    this.estado = 'RENDER';
+
+                },
+                async openRepositores(dniSupervisor) {
+                    this.estado = 'CARGANDO';
+                    this.isOpen = true;
+
+                    this.repositores = [];
+
+                    const supervisorData = Alpine.store('usuarios').supervisores.filter(
+                        s => s.User.external_code === dniSupervisor
+                    );
+
+                    this.supervisorName = `${supervisorData[0].User.last_name}, ${supervisorData[0].User.name}`;
+
+                    const supervisados = Alpine.store('usuarios').repositores.filter(
+                        r => r.Supervisor &&
+                            r.Supervisor.external_code === dniSupervisor
+                    );
+
+                    const today = new Date();
+                    const hasta = today.toISOString().split("T")[0];
+
+                    const hace30 = new Date(today);
+                    hace30.setDate(hace30.getDate() - 30);
+                    const desde = hace30.toISOString().split("T")[0];
+
+                    this.desde = desde;
+                    this.hasta = hasta;
+
+                    const totalRepos = supervisados.length;
+                    for (const [i, repo] of supervisados.entries()) {
+                        repo.User = limpiarDatosUsuario(repo.User);
+
+                        this.marcacionesDe = `${repo.User.last_name}, ${repo.User.name} (${i + 1}/${totalRepos})`;
+
+                        await sleep(1050);
+
+                        repo.marcaciones = await fetchMarcacionesPorUsuario(
+                            repo.User.identification_number,
+                            desde,
+                            hasta
+                        );
+
+                        let totalBrutoSegundos = 0;
+                        let totalNetoSegundos = 0;
+                        let totalTrasladoSegundos = 0;
+
+                        for (const fecha in repo.marcaciones) {
+                            const dataDia = repo.marcaciones[fecha];
+                            totalBrutoSegundos += dataDia.tiempo_bruto_total * 3600;
+                            totalNetoSegundos += dataDia.tiempo_neto_total * 3600;
+                            totalTrasladoSegundos += dataDia.tiempo_traslado_total * 3600;
+                        }
+
+                        repo.resumenGlobal = {
+                            tiempo_bruto_total_hms: segToHMS(totalBrutoSegundos),
+                            tiempo_neto_total_hms: segToHMS(totalNetoSegundos),
+                            tiempo_traslado_total_hms: segToHMS(totalTrasladoSegundos)
+                        };
+
+                        // console.log('obtener marcaciones de repositor:', repo);
+
+                        this.repositores.push(repo);
+                    }
+
+                    this.estado = 'RENDER';
+
+                    console.log(supervisorData);
+                },
+                close() {
+                    this.isOpen = false;
+                },
+            },
             modalRepositor: {
                 isOpen: false,
                 estado: 'CARGANDO',
@@ -129,6 +296,27 @@ function setupTables() {
                 hasta: '',
                 dniRepositor: '',
                 resumenGlobal: {},
+                exportarExcel() {
+
+                    const nombreCompleto = `${this.usuario.last_name}, ${this.usuario.name}`;
+
+                    const dni = this.usuario.identification_number || "sinDNI";
+
+                    // generar nombre de archivo seguro
+                    const safeFileName = `${this.usuario.last_name}_${this.usuario.name}_${dni}`
+                        .replace(/[^a-z0-9]/gi, '_') // reemplaza cualquier cosa que no sea letra o número por _
+                        .toLowerCase();
+
+                    const dataUsuarios = {
+                        [nombreCompleto]: {
+                            ...this.usuario,
+                            intervals: this.marcaciones
+                        }
+                    };
+
+                    globalExportarExcel(dataUsuarios, safeFileName)
+
+                },
                 async buscarMarcaciones() {
                     this.estado = 'CARGANDO';
 
@@ -171,7 +359,7 @@ function setupTables() {
                     hace30.setDate(hace30.getDate() - 30);
                     const desde = hace30.toISOString().split("T")[0];
 
-                    await setTimeout(() => { }, 1500);
+                    await sleep(1500)
 
                     this.desde = desde;
                     this.hasta = hasta;
@@ -410,6 +598,7 @@ async function fetchMarcacionesPorUsuario(dni, desde, hasta) {
             } else {
                 dataDia.tiempo_bruto_total = dataDia.tiempo_neto_total;
                 dataDia.tiempo_bruto_total_hms = dataDia.intervals[0].tiempo_neto_hms;
+                dataDia.tiempo_neto_total_hms = dataDia.intervals[0].tiempo_neto_hms;
             }
 
             // Link de recorrido
@@ -472,4 +661,42 @@ function limpiarDatosUsuario(usuario) {
     }
 
     return limpio;
+}
+
+function globalExportarExcel(dataUsuarios, safeFileName = "marcaciones") {
+    let rows = [];
+
+    for (const usuario in dataUsuarios) {
+        const infoUsuario = dataUsuarios[usuario];
+        const transporte = infoUsuario.transporte_primario || "Desconocido";
+        const marcaciones = infoUsuario.intervals;
+
+        for (const fecha in marcaciones) {
+            const dayData = marcaciones[fecha];
+
+            dayData.intervals.forEach((m, i) => {
+                rows.push({
+                    "Número de Marcación": i + 1,
+                    "Nombre": usuario,
+                    "Día": fecha,
+                    "Recorrido (enlace Google maps desde la 1er marcación a la última)": dayData.recorrido_link || '',
+                    "Horas Totales del Día con Traslados": dayData.tiempo_bruto_total_hms,
+                    "Horas Totales dentro del Super": dayData.tiempo_neto_total_hms,
+                    "Tiempo de Traslado Total del Día": dayData.tiempo_traslado_total_hms,
+                    "Tiempo de Traslado entre bocas": m.tiempo_traslado_hms,
+                    "Nombre Boca": m.ubicacion,
+                    "Hora Ingreso": m.datetime_in,
+                    "Ubicación de Ingreso (enlace de Google maps)": m.marcacion_in,
+                    "Hora Egreso": m.datetime_out,
+                    "Ubicación de Egreso (enlace de Google maps)": m.marcacion_out,
+                    "Tipo Transporte": transporte
+                });
+            });
+        }
+    }
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Marcaciones");
+    XLSX.writeFile(wb, `${safeFileName}.xlsx`);
 }

@@ -1,0 +1,318 @@
+<div x-show="$store.usuarios.reposDeSupervisor.isOpen" x-transition:enter="transition duration-300 ease-out"
+    id="supervisorModal" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 h-full flex items-center justify-center">
+
+    <!-- Overlay -->
+    <div class="fixed inset-0 bg-black/50" @click="$store.usuarios.reposDeSupervisor.close()"></div>
+
+    <!-- Modal -->
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-7xl mx-4 z-50 p-6 h-[95vh] flex flex-col"
+        x-transition:enter="transition transform duration-300" x-transition:enter-start="scale-95 opacity-0"
+        x-transition:enter-end="scale-100 opacity-100" x-transition:leave="transition transform duration-200"
+        x-transition:leave-start="scale-100 opacity-100" x-transition:leave-end="scale-95 opacity-0">
+
+        <div class="flex items-start justify-between border-b pb-4">
+            <h3 class="text-xl font-semibold text-gray-800">
+                Marcaciones de Repositores de <span x-text="$store.usuarios.reposDeSupervisor.supervisorName"></span>
+            </h3>
+            <button @click="$store.usuarios.reposDeSupervisor.close()"
+                class="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                    <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 
+                             1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 
+                             1.06L12 13.06l-5.47 5.47a.75.75 
+                             0 0 1-1.06-1.06L10.94 12 5.47 
+                             6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="gap-y-2 grow overflow-hidden my-2">
+
+            <div class="h-full overflow-x-auto">
+
+                <div class="flex flex-row gap-2 justify-end">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Desde</label>
+                        <input type="date" class="block w-full rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700
+                          focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            x-model="$store.usuarios.reposDeSupervisor.desde">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Hasta</label>
+                        <input type="date" class="block w-full rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700
+                          focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            x-model="$store.usuarios.reposDeSupervisor.hasta">
+                    </div>
+                    <div class="flex items-end">
+                        <button @click="$store.usuarios.reposDeSupervisor.buscarMarcaciones()" class="cursor-pointer inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white 
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Buscar
+                        </button>
+                    </div>
+                    <div class="flex items-end">
+                        <button @click="$store.usuarios.reposDeSupervisor.exportarExcel()"
+                            class="cursor-pointer inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white
+               hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5 mr-2"
+                                viewBox="0 0 24 24">
+                                <path d="M19 2H8c-1.1 0-2 .9-2 2v4H5c-1.1 0-2 .9-2 2v10c0 
+                    1.1.9 2 2 2h11c1.1 0 2-.9 2-2v-4h1c1.1 0 
+                    2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14H5V10h13v6zm0-8H5V8h13v0zm0-2H5V6h13v0z" />
+                            </svg>
+                            Descargar XLSX
+                        </button>
+                    </div>
+                </div>
+                <template x-if="$store.usuarios.reposDeSupervisor.estado === 'CARGANDO'">
+                    <div class="flex flex-row gap-2 justify-start items-center">
+                        <div class="text-sm">Obteniendo Marcaciones de <span
+                                x-text="$store.usuarios.reposDeSupervisor.marcacionesDe"></span>
+                        </div>
+                        <div class="animate-pulse flex-grow">
+                            <p class="w-2 h-2 bg-gray-200 rounded-lg dark:bg-gray-700"></p>
+                        </div>
+                    </div>
+                </template>
+
+
+                <template x-if="$store.usuarios.reposDeSupervisor.estado === 'RENDER'">
+                    <template x-for="repositor in $store.usuarios.reposDeSupervisor.repositores"
+                        :key="repositor.User.identification_number">
+
+                        <div class="mt-8 border border-gray-200 rounded-lg overflow-hidden shadow">
+                            <!-- Encabezado con resumen del período -->
+                            <div class="bg-gray-100 px-4 py-2 flex justify-start items-center gap-2 text-sm">
+                                <div>
+                                    Resumen de:
+                                    <span class="font-semibold"
+                                        x-text="`${repositor.User.last_name}, ${repositor.User.name}`"></span>
+                                </div>
+                                <span>
+                                    <span class="text-sm font-medium text-gray-600">Brutas:</span>
+                                    <span x-text="repositor.resumenGlobal.tiempo_bruto_total_hms"></span>,
+                                    <span class="text-sm font-medium text-gray-600">Neto:</span>
+                                    <span x-text="repositor.resumenGlobal.tiempo_neto_total_hms"></span>,
+                                    <span class="text-sm font-medium text-gray-600">Traslado:</span>
+                                    <span x-text="repositor.resumenGlobal.tiempo_traslado_total_hms"></span>
+                                </span>
+                            </div>
+
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">#</th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Tiempo
+                                            Traslado</th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Boca</th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Hora Ingreso
+                                        </th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Hora Egreso
+                                        </th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Ingreso</th>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Egreso</th>
+                                    </tr>
+                                </thead>
+
+                                <template x-for="(marcaciones, fecha) in repositor.marcaciones"
+                                    :key="repositor.User.identification_number+fecha">
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="bg-gray-50 border-t-2 border-gray-300">
+                                            <td colspan="8" class="px-4 py-2 text-sm text-end text-gray-800">
+                                                Total del Día <span x-text="fecha"></span> —
+                                                Bruto: <span x-text="marcaciones.tiempo_bruto_total_hms"></span>,
+                                                Neto: <span x-text="marcaciones.tiempo_neto_total_hms"></span>,
+                                                Traslado: <span x-text="marcaciones.tiempo_traslado_total_hms"></span>
+                                                <a :href="marcaciones.recorrido_link" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                                    <svg class="size-4" viewBox="0 0 40 40">
+                                                        <path
+                                                            d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                            fill="#FFC107" />
+                                                        <path
+                                                            d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z"
+                                                            fill="#FF3D00" />
+                                                        <path
+                                                            d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z"
+                                                            fill="#4CAF50" />
+                                                        <path
+                                                            d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                            fill="#1976D2" />
+                                                    </svg>
+                                                    <span>Recorrido</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+
+                                        <template x-for="(marcacion, idx) in marcaciones.intervals"
+                                            :key="repositor.User.identification_number+fecha+idx">
+                                            <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                                                <td x-text="idx + 1" class="px-4 py-2 text-sm text-gray-700"></td>
+                                                <td x-text="marcacion.tiempo_traslado_hms"
+                                                    class="px-4 py-2 text-sm text-gray-700"></td>
+                                                <td x-text="marcacion.ubicacion"
+                                                    class="px-4 py-2 text-sm text-gray-700 font-semibold"></td>
+                                                <td x-text="marcacion.time_in" class="px-4 py-2 text-sm text-gray-700">
+                                                </td>
+                                                <td x-text="marcacion.time_out" class="px-4 py-2 text-sm text-gray-700">
+                                                </td>
+                                                <td class="px-4 py-2 text-sm text-gray-700">
+                                                    <a :href="marcacion.marcacion_in" target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                                        <svg class="size-4" viewBox="0 0 40 40">
+                                                            <path
+                                                                d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                                fill="#FFC107" />
+                                                            <path
+                                                                d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z"
+                                                                fill="#FF3D00" />
+                                                            <path
+                                                                d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z"
+                                                                fill="#4CAF50" />
+                                                            <path
+                                                                d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                                fill="#1976D2" />
+                                                        </svg>
+                                                        <span>Ver</span>
+                                                    </a>
+                                                </td>
+                                                <td class="px-4 py-2 text-sm text-gray-700">
+                                                    <a :href="marcacion.marcacion_out" target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                                        <svg class="size-4" viewBox="0 0 40 40">
+                                                            <path
+                                                                d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                                fill="#FFC107" />
+                                                            <path
+                                                                d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z"
+                                                                fill="#FF3D00" />
+                                                            <path
+                                                                d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z"
+                                                                fill="#4CAF50" />
+                                                            <path
+                                                                d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
+                                                                fill="#1976D2" />
+                                                        </svg>
+                                                        <span>Ver</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </template>
+                            </table>
+                        </div>
+                    </template>
+                </template>
+
+
+                <!-- <table class="min-w-full divide-y divide-gray-200 overflow-y-auto">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                #</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Repositor</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Tiempo de Traslado</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Boca</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Hora de Ingreso</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Hora de Egreso</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Ingreso</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+                                Egreso</th>
+                        </tr>
+                    </thead>
+
+                    <template x-if="$store.usuarios.reposDeSupervisor.estado === 'CARGANDO'">
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="row in 5" :key="row">
+                                <tr class="animate-pulse">
+                                    <template x-for="col in 8" :key="col">
+                                        <td class="px-4 py-2">
+                                            <div class="h-2 w-full bg-gray-200 rounded"></div>
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </template>
+                    <template x-if="$store.usuarios.reposDeSupervisor.estado === 'RENDER'">
+                        <template x-for="repositor in $store.usuarios.reposDeSupervisor.repositores"
+                            :key="repositor.User.identification_number">
+                            <template x-for="(marcaciones, fecha) in repositor.marcaciones"
+                                :key="repositor.User.identification_number+fecha">
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="bg-gray-50 border-t-2 border-gray-300">
+                                        <td colspan="8" class="px-4 py-2 text-sm text-end text-gray-800">
+                                            Total del Dia <span x-text="fecha"
+                                                class="text-sm font-medium text-gray-700"></span> —
+                                            <span class="text-sm font-medium text-gray-700">Bruto:</span> <span
+                                                x-text="marcaciones.tiempo_bruto_total_hms"></span>,
+                                            <span class="text-sm font-medium text-gray-700">Neto:</span> <span
+                                                x-text="marcaciones.tiempo_neto_total_hms"></span>,
+                                            <span class="text-sm font-medium text-gray-700">Traslado:</span> <span
+                                                x-text="marcaciones.tiempo_traslado_total_hms"></span>
+                                            <a :href="marcaciones.recorrido_link" target="_blank" rel="noopener noreferrer"
+                                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                Recorrido del Día
+                                            </a>
+                                        </td>
+                                    </tr>
+
+                                    <template x-for="(marcacion, idx) in marcaciones.intervals"
+                                        :key="repositor.User.identification_number+fecha+idx">
+                                        <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                                            <td x-text="idx + 1" class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="`${repositor.User.last_name}, ${repositor.User.name}`"
+                                                class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="marcacion.tiempo_traslado_hms"
+                                                class="px-4 py-2 text-sm text-gray-700"></td>
+                                            <td x-text="marcacion.ubicacion"
+                                                class="px-4 py-2 text-sm text-gray-700 font-semibold">
+                                            </td>
+                                            <td x-text="marcacion.time_in" class="px-4 py-2 text-sm text-gray-700">
+                                            </td>
+                                            <td x-text="marcacion.time_out" class="px-4 py-2 text-sm text-gray-700">
+                                            </td>
+                                            <td class="px-4 py-2 text-sm text-gray-700">
+                                                <a :href="marcacion.marcacion_in" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                    Ver en Maps
+                                                </a>
+                                            </td>
+                                            <td class="px-4 py-2 text-sm text-gray-700">
+                                                <a :href="marcacion.marcacion_out" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors">
+                                                    Ver en Maps
+                                                </a>
+                                            </td>
+                                        </tr>
+                                </tbody>
+                            </template>
+                            </tbody>
+                        </template>
+                    </template>
+                </table> -->
+            </div>
+
+        </div>
+
+        <div class="mt-auto mb-0 flex justify-end space-x-2">
+            <button @click="$store.usuarios.modalSupervisor.close()" class="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 
+                           transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>

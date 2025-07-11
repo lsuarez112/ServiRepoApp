@@ -120,9 +120,11 @@
                                         </td>
 
                                         <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                            <div class="flex justify-center">
+                                            <div class="flex justify-center gap-4">
                                                 <a href="#" class="font-medium text-blue-600 hover:underline"
                                                     @click="$store.usuarios?.modalSupervisor.open(supervisor.User.identification_number)">Ver</a>
+                                                <a href="#" class="font-medium text-blue-600 hover:underline"
+                                                    @click="$store.usuarios?.reposDeSupervisor.openRepositores(supervisor.User.identification_number)">Repositores</a>
                                             </div>
                                         </td>
                                     </tr>
